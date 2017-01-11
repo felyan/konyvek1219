@@ -1,0 +1,423 @@
+index.php
+
+<!doctype html>
+<html>
+<head><title>Könyvek</title>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="index.css">
+</head>
+<body>
+<?php include "header.php"; ?>
+<main>
+<?php include (isset($_GET['tartalom']) ? $_GET['tartalom'] : 'kezdo') . ".php"; ?>
+</main>
+</body>
+</html>
+
+
+
+index.css
+
+body {background-color:#c2c2d6;}
+
+ul {list-style-type: none;}
+
+ul li {font-family: Times New Roman, Georgia, Serif;
+	background-color: #c2c2d6;
+	padding: 15px 15px;
+	border-radius: 10px 10px;
+	text-transform: uppercase;
+	display: inline;}
+
+ul li a {text-decoration: none;
+      color:#47476b;}
+
+
+nav {background-color: white;
+            padding:20px;
+		    text-align: center;
+			border-radius:10px;
+			width:90%;
+			margin:0 auto;}
+
+main {margin:0 auto;
+     text-align:center;
+	 width:90%;
+	 color:#47476b;
+	 height:100%;
+	 }
+
+
+
+
+img{ height: 450px; width: 650px; float: center;
+
+
+}
+
+table {
+    border-collapse: collapse;
+	margin:8px auto;
+}
+
+table, th, td {
+    border: 1px solid black;
+
+}
+
+
+
+
+
+
+
+
+header.php
+
+<nav>
+<ul>
+<li><a href="index.php?tartalom=keres_konyv&tipus=cim">Keresés könyvek szerint</a></li>
+<li><a href="index.php?tartalom=keres_konyv&tipus=szerzo">Keresés szerző szerint</a></li>
+<li><a href="index.php?tartalom=konyv_szerzo_hozzaad">Könyv és szerző hozzáadása</a></li>
+<li><a href="index.php?tartalom=kezdo">Kezdőoldal</a></li>
+</ul>
+</nav>
+
+
+kezdo.php
+
+<h1>Olvasni öröm :)</h1>
+<h3>Egyetértesz?</h3>
+<p>
+Használd a fenti menüpontokat és keress a könyvek vagy a szerzők szerint adatbázisunkban. 
+Ha úgy érzed nem teljes a lista és szeretnéd kedvenc könyved,
+
+vagy kedvenc íród egy könyvét is a listában látni, nincs más dolgod, 
+mint a "könyv és szerző hozzáadása" menüpont alatt ezt megtenni.</p>
+
+<div>
+<img src="konyv.jpg" alt="" class="p1">
+<div>
+
+
+keres_konyv.php
+
+<?php
+//var_dump($_GET);
+//var_dump($_POST);
+
+if (isset($_POST["tipus"])) {
+  $tipus = $_POST["tipus"];
+} elseif (isset($_GET["tipus"])) {
+  $tipus = $_GET["tipus"];
+}
+
+if (isset($_POST["kifejezes"])) {
+  $kifejezes = $_POST["kifejezes"];
+} else {
+  $kifejezes = "";
+}
+
+//var_dump($tipus);
+?>
+<h2>Kérem válasszon az alábbiak közül</h2>
+<form action="index.php?tartalom=eredmeny_konyv" method="post">
+
+    <select name="tipus">
+      <option value=""></option>
+      <option value="cim" <?php if ($tipus == 'cim') { echo 'selected'; } ?>>Könyv címe alapján</option>
+      <option value="ISBN" <?= $tipus == 'ISBN' ? 'selected' : "" ?>>ISBN alapján</option>
+      <option value="szerzo" <?= $tipus == 'szerzo' ? 'selected' : "" ?>>Szerző alapján</option>
+    </select>
+    <br>
+    Írja be a keresendő kifejezést: <br />
+    <input name="kifejezes" type="text" size="40" value="<?php echo $kifejezes ?>"/>
+	<br />
+	<input type="submit" name="kuldes" value="Keresés"/>
+  </form>
+
+
+
+
+
+
+
+<?php if (isset($hibaKod)) {
+  switch ($hibaKod) {
+    case 1: echo 'Töltse ki az űrlapot!'; break;
+    case 2: echo 'Nem sikerült csatlakozni!'; break;
+    case 3: echo 'Nincs eredmény'; break;
+  }
+} ?>
+
+<?php if (!empty($konyvek)): ?>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th>Könyv címe</th>
+        <th>ISBN száma</th>
+        <th>Szerző neve</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <?php foreach ($konyvek as $kulcs => $konyv): ?>
+
+        <tr>
+          <td><?php echo $konyv["cim"] ?></td>
+          <td><?php echo $konyv["ISBN"] ?></td>
+          <td><?= $konyv["nev"] ?></td>
+        </tr>
+
+      <?php endforeach; ?>
+
+    </tbody>
+</table>
+<?php endif; ?>
+
+<div>
+  <img src="keres_<?= $tipus == 'szerzo' ? 'szerzo' : 'konyv' ?>.jpg" alt="" class="p1">
+</div>
+
+
+keres_szerzo.php
+
+<?php
+//var_dump($_GET);
+//var_dump($_POST);
+
+if (isset($_POST["tipus"])) {
+  $tipus = $_POST["tipus"];
+} elseif (isset($_GET["tipus"])) {
+  $tipus = $_GET["tipus"];
+}
+
+if (isset($_POST["kifejezes"])) {
+  $kifejezes = $_POST["kifejezes"];
+} else {
+  $kifejezes = "";
+}
+
+//var_dump($tipus);
+?>
+<h2>Kérem válasszon az alábbiak közül</h2>
+<form action="index.php?tartalom=eredmeny_konyv" method="post">
+
+    <select name="tipus">
+      <option value=""></option>
+      <option value="cim" <?php if ($tipus == 'cim') { echo 'selected'; } ?>>Könyv címe alapján</option>
+      <option value="ISBN" <?= $tipus == 'ISBN' ? 'selected' : "" ?>>ISBN alapján</option>
+      <option value="szerzo" <?= $tipus == 'szerzo' ? 'selected' : "" ?>>Szerző alapján</option>
+    </select>
+    <br>
+    Írja be a keresendő kifejezést: <br />
+    <input name="kifejezes" type="text" size="40" value="<?php echo $kifejezes ?>"/>
+	<br />
+	<input type="submit" name="kuldes" value="Keresés"/>
+  </form>
+
+
+
+<?php if (isset($hibaKod)) {
+  switch ($hibaKod) {
+    case 1: echo 'Töltse ki az űrlapot!'; break;
+    case 2: echo 'Nem sikerült csatlakozni!'; break;
+    case 3: echo 'Nincs eredmény'; break;
+  }
+} ?>
+
+<?php if (!empty($konyvek)): ?>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th>Könyv címe</th>
+        <th>ISBN száma</th>
+        <th>Szerző neve</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <?php foreach ($konyvek as $kulcs => $konyv): ?>
+
+        <tr>
+          <td><?php echo $konyv["cim"] ?></td>
+          <td><?php echo $konyv["ISBN"] ?></td>
+          <td><?= $konyv["nev"] ?></td>
+        </tr>
+
+      <?php endforeach; ?>
+
+    </tbody>
+</table>
+<?php endif; ?>
+
+<div>
+  <img src="keres_<?= $tipus == 'szerzo' ? 'szerzo' : 'konyv' ?>.jpg" alt="" class="p1">
+</div>
+
+
+
+connect.php
+
+<?php
+$dbc = mysqli_connect('localhost','root','password',"konyv");
+if (mysqli_connect_error()){
+	echo "Hiba a kapcsolódás során";
+	include "kereses_konyv.php";
+	exit;
+}
+mysqli_query($dbc, "set names utf8");
+
+
+
+
+eredmeny_konyv.php
+
+<?php
+header('Content-Type: text/html; charset=utf-8');
+
+$hibaKod = 0;
+$konyvek = [];
+$tipus=$_POST["tipus"];
+$kifejezes=$_POST["kifejezes"];
+
+if (empty($tipus) || empty($kifejezes)) {
+	$hibaKod = 1;
+}
+
+
+if (empty($tipus) || empty($kifejezes)){
+
+	echo "Kérem adja meg a keresési feltételeket!";
+	exit;
+}
+
+include 'connect.php';
+
+if($tipus=="szerzo")
+{
+	$query="
+	SELECT * FROM szerzo
+	JOIN konyvszerzo ksz ON szerzo.szerzoid=ksz.szerzoid
+	JOIN konyv ON ksz.konyvid=konyv.konyvid
+WHERE nev LIKE '%$kifejezes%'
+";
+}
+else {
+	$query="
+	SELECT * FROM konyv
+JOIN konyvszerzo ksz ON konyv.konyvid = ksz.konyvid
+JOIN szerzo ON szerzo.szerzoid = ksz.szerzoid
+WHERE $tipus LIKE '%$kifejezes%'
+";
+}
+echo $query;
+	if ($eredmeny=mysqli_query($dbc,$query)) {
+		$talalatok_szama=mysqli_num_rows($eredmeny);
+
+		if ($talalatok_szama>=1)
+		{
+			while ($sor=mysqli_fetch_array($eredmeny))
+			{
+				$konyvek []= $sor;
+			}
+		} else {
+			$hibaKod = 3;
+		}
+		mysqli_free_result($eredmeny);
+	} else {
+		$hibaKod = 2;
+	}
+
+mysqli_close($dbc);
+include('keres_konyv.php');
+?>
+
+
+konyv_szerzo_hozzaad.php
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="index.css">
+</head>
+<body>
+<form method="post" action="hozzaad.php">
+  <table>
+    <tr>
+      <td> <label for="cim">Könyv teljes címe:</label></td>
+      <td><input type="text" id="cim" name="cim" length="50"></td>
+    </tr>
+    <tr>
+      <td> <label for="ISBN">Könyv ISBN száma:</label></td>
+      <td><input type="text" id="ISBN" name="ISBN" length="50"></td>
+    </tr>
+    <tr>
+      <td> <label for="ISBN">Könyv szerzője:</label></td>
+      <td><input type="text" id="szerzo" name="szerzo" length="50"></td>
+    </tr>
+  </table>
+
+<input type="submit" value="Könyv és szerző hozzáadása">
+</form>
+</body>
+</html>
+
+
+
+hozzaad.php
+
+<?php
+/*
+$a = 'A kutya';
+$b = 'itt van elásva';
+$c = $a . ' nem ' . $b;
+echo $c; // A kutya nem itt van elásva
+*/
+include 'connect.php';
+header('Content-Type: text/html; charset=utf-8');
+
+$hibaKod = 0;
+$konyvek = [];
+$cim = $_POST['cim'];
+
+echo $query = "
+  INSERT INTO konyv SET cim = '$cim', ISBN = '" . $_POST['ISBN'] . "'";
+if ($res = mysqli_query($dbc, $query)) {
+  $konyvId = mysqli_insert_id($dbc);
+}
+/*
+$query1 = "INSERT INTO szerzo SET nev = '";
+$query2 = $_POST['szerzo'];
+$query3 = "'";
+
+$query = $query1 . $query2 . $query3;
+*/
+echo $query = "INSERT INTO szerzo SET nev = '" . $_POST['szerzo'] . "'";
+if ($err = mysqli_error($dbc)) {
+  echo $err;
+}
+if ($res = mysqli_query($dbc, $query)) {
+  $szerzoId = mysqli_insert_id($dbc);
+}
+
+
+echo $query = "
+  INSERT INTO konyvszerzo SET konyvid = $konyvId, szerzoid = $szerzoId
+";
+if ($res = mysqli_query($dbc, $query)) {
+
+}
+
+
+mysqli_close($dbc);
+
+header('Location: index.php');
+
+
+
